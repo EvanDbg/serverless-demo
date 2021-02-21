@@ -1,5 +1,4 @@
 var express = require('express');
-var session = require('express-session');
 var bodyParser = require('body-parser');
 var got = require('got');
 var path = require('path');
@@ -143,11 +142,6 @@ async function checkLogin() {
 }
 
 var app = express();
-app.use(session({
-    secret: 'secret',
-    resave: true,
-    saveUninitialized: true
-}));
 app.use(bodyParser.json({ limit: '50mb' }));
 app.use(bodyParser.urlencoded({ limit: '50mb', extended: true }));
 app.use(express.static(path.join(__dirname, 'public')));
@@ -156,8 +150,6 @@ app.use(express.static(path.join(__dirname, 'public')));
  * 登录页面
  */
 app.get('/', function (request, response) {
-    request.session.loggedin = true;
-    request.session.username = 'username';
     response.redirect('./home');
 });
 
@@ -186,7 +178,7 @@ app.get('/qrcode', function (request, response) {
  */
 
 app.get('/cookie', function (request, response) {
-    if (request.session.loggedin && cookies != "") {
+    if (cookies != "") {
         (async () => {
             try {
                 const cookie = await checkLogin();
@@ -209,12 +201,7 @@ app.get('/cookie', function (request, response) {
  * 首页 配置页面
  */
 app.get('/home', function (request, response) {
-    if (request.session.loggedin) {
-        response.sendFile(path.join(__dirname + '/public/home.html'));
-    } else {
-        response.redirect('./');
-    }
-    
+    response.sendFile(path.join(__dirname + '/public/home.html'));    
 });
 
 app.listen(8080)
